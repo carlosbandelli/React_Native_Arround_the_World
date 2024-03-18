@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/images/adaptive-icon.png"
+      }
+    },
+    "assetBundlePatterns": ["**/*"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "icon": "./assets/images/icon.png",
+    "ios": {
+      "supportsTablet": true
+    },
+    "name": "REACT_NATIVE_ARROUND_THE_WORLD",
+    "orientation": "portrait",
+    "plugins": ["expo-router", "expo-font"],
+    "scheme": "myapp",
+    "slug": "REACT_NATIVE_ARROUND_THE_WORLD",
+    "splash": {
+      "backgroundColor": "#000000",
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain"
+    },
+    "userInterfaceStyle": "automatic",
+    "version": "1.0.0",
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/images/favicon.png",
+      "output": "static"
+    }
+  }
+}
