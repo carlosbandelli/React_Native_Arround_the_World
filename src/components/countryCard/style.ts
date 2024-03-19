@@ -12,6 +12,12 @@ export const styles = StyleSheet.create({
     height: 200,
     resizeMode: "cover",
   },
+  footer: {
+    width: '100%',
+    height: 102,
+    padding: 16,
+    justifyContent: 'flex-end',
+  },
   cardContent: {
     padding: 16,
   },

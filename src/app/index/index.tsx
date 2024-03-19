@@ -12,6 +12,7 @@ import {
 } from "@/Services/functions";
 import { CountryCard } from "@/components/countryCard";
 import { styles } from "./styles";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const App: React.FC = () => {
   const [countryName, setCountryName] = useState<string>("");
@@ -82,7 +83,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <TextInput
         placeholder="Digite o nome do país"
         value={countryName}
@@ -92,6 +93,7 @@ const App: React.FC = () => {
       <Button title="Buscar" onPress={searchCountry} />
       <FlatList
         data={searchResults}
+        showsHorizontalScrollIndicator={false}
         keyExtractor={(item) => item.index}
         renderItem={({ item }) => (
           <CountryCard
@@ -102,7 +104,7 @@ const App: React.FC = () => {
           />
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

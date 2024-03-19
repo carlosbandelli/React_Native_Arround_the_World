@@ -11,3 +11,7 @@ export const colors = {
   gray_300: "#8D8D99",
   gray_400: "#7C7C8A",
 }
+
+export const footer = {
+  footer: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.9)'],
+}

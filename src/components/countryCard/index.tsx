@@ -1,4 +1,11 @@
-import { View, Text, Button, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  TouchableOpacity,
+  Image,
+  ImageBackground,
+} from "react-native";
 
 import { styles } from "./style";
 import { CountryData } from "@/Types/types";
@@ -27,7 +34,10 @@ export const CountryCard: React.FC<CountryCardProps> = ({
 
   return (
     <TouchableOpacity style={styles.card}>
-      <Image source={{ uri: country.flags.png }} style={styles.cardImage} />
+      <ImageBackground
+        source={{ uri: country.flags.png }}
+        style={styles.cardImage}
+      ></ImageBackground>
       <View style={styles.cardContent}>
         <Text style={styles.title}>{country.translations.por.official}</Text>
         <Text style={styles.infoText}>

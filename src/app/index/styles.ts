@@ -8,6 +8,11 @@ export const styles = StyleSheet.create({
     padding: 20,
   },
 
+  contentList: {
+    paddingLeft: 32,
+    paddingRight: 64,
+  },
+
   cardContainer: {
     borderRadius: theme.borderRadius.md,
     overflow: "hidden",
