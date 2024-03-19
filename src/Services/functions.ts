@@ -1,111 +1,76 @@
-import { v4 as uuidv4 } from 'uuid';
+import unorm from "unorm";
 
 import { CountryData } from "../Types/types";
-import { getCountryData } from "./api";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function mapApiDataToCountryData(apiData: CountryData): CountryData {
-  const uuid = uuidv4();
-  return {
-    index: uuid,
-    name: {
-      common: apiData.name.common || '',
-      official: apiData.name.official || '',
-    },
-    translations: {
-      por: {
-        official: apiData.translations.por.official || '',
-        common: apiData.translations.por.common || ''
-      }
-    },
-    ccn3: apiData.ccn3 || '',
-    capital: apiData.capital || [],
-    population: apiData.population || 0,
-    currencies: apiData.currencies || {},
-    languages: apiData.languages || {},
-    flags: {
-      png: apiData.flags.png || '',
-      svg: apiData.flags.svg || '',
-      alt: apiData.flags.alt || ''
-    },
-    maps: {
-      googleMaps: apiData.maps.googleMaps || '',
-      openStreetMaps: apiData.maps.openStreetMaps || ''
+export function generateUniqueId(): string {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+    /[xy]/g,
+    function (c) {
+      var r = (Math.random() * 16) | 0,
+        v = c == "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
     }
-  };
+  );
 }
 
-export const fetchCountryData = async (countryName: string): Promise<CountryData | null> => {
+export const generateCountryNameVariations = (countryName: string): string[] => {
+  const variations: string[] = [];
+  variations.push(countryName);
+
+  const normalized = unorm.nfd(countryName);
+  const withoutAccents = normalized.replace(/[\u0300-\u036f]/g, "");
+  if (withoutAccents !== countryName) {
+    variations.push(withoutAccents);
+  }
+
+  const asciiVariants: Record<string, string> = {
+    á: "a",
+    à: "a",
+    â: "a",
+    ã: "a",
+    ä: "a",
+    å: "a",
+    é: "e",
+    è: "e",
+    ê: "e",
+    ë: "e",
+    í: "i",
+    ì: "i",
+    î: "i",
+    ï: "i",
+    ó: "o",
+    ò: "o",
+    ô: "o",
+    õ: "o",
+    ö: "o",
+    ø: "o",
+    ú: "u",
+    ù: "u",
+    û: "u",
+    ü: "u",
+    ñ: "n",
+    ç: "c",
+  };
+
+  const withAsciiEquivalents = normalized.replace(
+    /[\u0300-\u036f]/g,
+    (match) => asciiVariants[match] || match
+  );
+  if (withAsciiEquivalents !== normalized) {
+    variations.push(withAsciiEquivalents);
+  }
+
+  return variations;
+};
+
+export const saveDataToStorage = async (data: CountryData[]) => {
   try {
-    const response = await getCountryData(countryName);
-    console.log("response", JSON.stringify(response, null, 2));
-
-
-    if (response && response.data) {
-      console.log("response.data", JSON.stringify(response.data, null, 2));
-      console.log("response.data[0]", JSON.stringify(response.data[0], null, 2));
-      const countryData = mapApiDataToCountryData(response.data[0]);
-      console.log("countryData", countryData);
-      return countryData;
-    }
-
-    const countryNameVariants = generateCountryNameVariants(countryName);
-    console.log("countryNameVariants", countryNameVariants);
-    for (const variant of countryNameVariants) {
-      const variantResponse = await getCountryData(variant);
-      console.log("variantResponse", variantResponse);
-      if (variantResponse && variantResponse.data) {
-        const countryData = mapApiDataToCountryData(variantResponse.data[0]);
-        return countryData;
-      }
-    }
-
-    return null;
+    await AsyncStorage.setItem("searchResults", JSON.stringify(data));
+    console.log("Dados salvos com sucesso no armazenamento:", data);
   } catch (error) {
-    //console.error('Erro ao buscar dados do país:', error);
-    return null;
+    console.error("Erro ao salvar dados no armazenamento:", error);
   }
-};
-
-
-
-export const generateCountryNameVariants = (countryName: string): string[] => {
-  const normalizedCountryName = normalizeCountryName(countryName);
-  const variants = [normalizedCountryName];
-  for (let i = 0; i < normalizedCountryName.length; i++) {
-    const char = normalizedCountryName[i];
-    if (char.toUpperCase() !== char.toLowerCase()) {
-      const accentedChars = getAccentedChars(char);
-      for (const accentedChar of accentedChars) {
-        const variant = normalizedCountryName.substring(0, i) + accentedChar + normalizedCountryName.substring(i + 1);
-        variants.push(variant);
-      }
-    }
-  }
-  return variants;
-};
-
-const getAccentedChars = (char: string): string[] => {
-  switch (char.toLowerCase()) {
-    case 'a':
-      return ['á', 'à', 'â', 'ä', 'ã', 'å', 'æ'];
-    case 'e':
-      return ['é', 'è', 'ê', 'ë'];
-    case 'i':
-      return ['í', 'ì', 'î', 'ï'];
-    case 'o':
-      return ['ó', 'ò', 'ô', 'ö', 'õ', 'ø'];
-    case 'u':
-      return ['ú', 'ù', 'û', 'ü'];
-    case 'c':
-      return ['ç'];
-    default:
-      return [char];
-  }
-};
-
-
-export const normalizeCountryName = (countryName: string): string => {
-  return countryName.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 };
 
 

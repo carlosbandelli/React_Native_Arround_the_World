@@ -2,13 +2,10 @@ import { StyleSheet } from "react-native";
 import { theme } from '../../theme';
 
 export const styles = StyleSheet.create({
-  cardContainer: {
-    borderRadius: theme.borderRadius.md,
-    overflow: "hidden",
-    backgroundColor: theme.colors.white,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    elevation: 2,
+  container: {
+    flex: 1,
+    alignItems: "center",
+    padding: 20,
   },
   cardImage: {
     width: "100%",
@@ -27,7 +24,21 @@ export const styles = StyleSheet.create({
     color: theme.colors.white,
     marginBottom: 4,
   },
-  actionButton: {
-    marginTop: 8,
+  card: {
+    borderWidth: 1,
+    borderColor: "black",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+    width: "100%",
+  },
+  cardText: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  error: {
+    fontSize: 16,
+    color: "red",
+    marginBottom: 10,
   },
 });

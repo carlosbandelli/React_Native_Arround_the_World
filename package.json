@@ -37,7 +37,8 @@
     "react-native-web": "~0.19.6",
     "unorm": "^1.6.0",
     "uuid": "^8.3.2",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
