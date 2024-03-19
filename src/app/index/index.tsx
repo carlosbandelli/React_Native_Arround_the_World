@@ -207,8 +207,7 @@
 import { getCountryData } from "@/Services/api";
 import { CountryData } from "@/Types/types";
 import { theme } from "@/theme";
-import React, { useState } from "react";
-import { randomUuid } from "expo-random";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -220,25 +219,32 @@ import {
   Image,
   Linking,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { formatarPopulacao, removeAspas } from "@/Services/functions";
 
 interface CountryCardProps {
   country: CountryData;
   onPress: () => void;
   onOpenGoogleMaps: () => void;
+  onDelete: () => void;
 }
 
 const CountryCard: React.FC<CountryCardProps> = ({
   country,
   onPress,
   onOpenGoogleMaps,
+  onDelete,
 }) => {
   if (!country || Object.keys(country).length === 0) {
     return <Text style={styles.error}>Erro: País não encontrado.</Text>;
   }
 
+  const handleDelete = () => {
+    onDelete();
+  };
+
   return (
-    <TouchableOpacity onPress={onPress} style={styles.card}>
+    <TouchableOpacity style={styles.card}>
       <Image source={{ uri: country.flags.png }} style={styles.cardImage} />
       <View style={styles.cardContent}>
         <Text style={styles.title}>{country.translations.por.official}</Text>
@@ -267,6 +273,7 @@ const CountryCard: React.FC<CountryCardProps> = ({
         </Text>
         <Button title="Executar novamente" onPress={onPress} />
         <Button title="Abrir no Google Maps" onPress={onOpenGoogleMaps} />
+        <Button title="Deletar país" onPress={handleDelete} />
       </View>
     </TouchableOpacity>
   );
@@ -278,16 +285,40 @@ const App: React.FC = () => {
 
   const searchCountry = async () => {
     try {
-      const data = await getCountryData(countryName); // Obtém os dados do país
-      console.log(data); // Exibe os dados no console
-      setSearchResults((prevResults) => [...prevResults, ...data]); // Adiciona os novos resultados aos resultados existentes
+      const data = await getCountryData(countryName);
+      console.log(data);
+      setSearchResults((prevResults) => [...prevResults, ...data]);
+      saveDataToStorage([...searchResults, ...data]);
     } catch (error) {
-      console.error("Erro ao buscar país:", error); // Exibe erro caso ocorra
+      console.error("Erro ao buscar país:", error);
+    }
+  };
+
+  const loadSavedData = async () => {
+    try {
+      const savedData = await AsyncStorage.getItem("searchResults");
+      if (savedData !== null) {
+        setSearchResults(JSON.parse(savedData));
+        console.log(
+          "Dados carregados do armazenamento:",
+          JSON.parse(savedData)
+        );
+      }
+    } catch (error) {
+      console.error("Erro ao carregar dados do armazenamento:", error);
+    }
+  };
+
+  const saveDataToStorage = async (data: CountryData[]) => {
+    try {
+      await AsyncStorage.setItem("searchResults", JSON.stringify(data));
+      console.log("Dados salvos com sucesso no armazenamento:", data);
+    } catch (error) {
+      console.error("Erro ao salvar dados no armazenamento:", error);
     }
   };
 
   function generateUniqueId(): string {
-    // Gera e retorna um UUID aleatório
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
       /[xy]/g,
       function (c) {
@@ -299,15 +330,26 @@ const App: React.FC = () => {
   }
 
   const handleSearchAgain = (country: CountryData) => {
-    // Clonar o país e alterar o índice
     const newCountry = { ...country, index: generateUniqueId() };
-    setSearchResults((prevResults) => [...prevResults, newCountry]); // Adiciona o novo país aos resultados existentes
+    setSearchResults((prevResults) => [...prevResults, newCountry]);
   };
 
   const handleOpenGoogleMaps = (country: CountryData) => {
-    const googleMapsUrl = removeAspas(country.maps.googleMaps); // Remove as aspas da URL
-    Linking.openURL(googleMapsUrl); // Abre o aplicativo Google Maps com a URL fornecida
+    const googleMapsUrl = removeAspas(country.maps.googleMaps);
+    Linking.openURL(googleMapsUrl);
   };
+
+  const deleteCountry = async (country: CountryData) => {
+    const updatedResults = searchResults.filter(
+      (item) => item.index !== country.index
+    );
+    setSearchResults(updatedResults);
+    saveDataToStorage(updatedResults);
+  };
+
+  useEffect(() => {
+    loadSavedData();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -326,6 +368,7 @@ const App: React.FC = () => {
             country={item}
             onPress={() => handleSearchAgain(item)}
             onOpenGoogleMaps={() => handleOpenGoogleMaps(item)}
+            onDelete={() => deleteCountry(item)}
           />
         )}
       />
