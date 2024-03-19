@@ -1,209 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import {
-//   View,
-//   Text,
-//   TouchableOpacity,
-//   Modal,
-//   Alert,
-//   Linking,
-// } from "react-native";
-// import { v4 as uuidv4 } from "uuid";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// import {
-//   fetchCountryData,
-//   generateCountryNameVariants,
-//   normalizeCountryName,
-// } from "../../Services/functions";
-// import { ExportCSVButton } from "../../Services/convertcsv";
-
-// import { Table } from "../../components/Table";
-// import { Header } from "../../components/Header";
-// import { Title } from "../../components/title";
-// import { Form } from "../../components/Form";
-// import { Loading } from "../../components/Loading";
-// import { Input } from "../../components/input";
-// import { Button } from "../../components/button";
-// import { CountryCardContainer } from "../../components/countryCardContainer";
-// import { PanelsTopLeft, SquareAsterisk } from "lucide-react";
-// import { styles } from "./styles";
-// import { CountryData } from "@/Types/types";
-
-// export default function Index() {
-//   const [countryName, setCountryName] = useState("");
-//   const [searchHistory, setSearchHistory] = useState([] as CountryData[]);
-//   const [loading, setLoading] = useState(false);
-//   const [apiError, setApiError] = useState(false);
-//   const [offline, setOffline] = useState(false);
-//   const [showEmptyFieldModal, setShowEmptyFieldModal] = useState(false);
-//   console.log("countryName", countryName);
-
-//   const handleCountryNameChange = (text: string) => {
-//     setCountryName(text);
-//   };
-
-//   const openGoogleMapsLink = (link: string) => {
-//     Linking.openURL(link);
-//   };
-
-//   const handleExecuteAgain = async (countryName: string) => {
-//     try {
-//       setLoading(true);
-//       setApiError(false);
-
-//       let countryToUpdateIndex: number = -1;
-
-//       for (let i = 0; i < searchHistory.length; i++) {
-//         const country = searchHistory[i];
-//         if (country.name.official === countryName) {
-//           countryToUpdateIndex = i;
-//           break;
-//         }
-//       }
-
-//       if (countryToUpdateIndex !== -1) {
-//         const newUuid = uuidv4();
-
-//         setSearchHistory((prevSearchHistory) => {
-//           const updatedSearchHistory = [...prevSearchHistory];
-//           updatedSearchHistory[countryToUpdateIndex] = {
-//             ...updatedSearchHistory[countryToUpdateIndex],
-//             index: newUuid,
-//           };
-//           updatedSearchHistory.push({
-//             ...searchHistory[countryToUpdateIndex],
-//           });
-//           return updatedSearchHistory;
-//         });
-//       }
-//     } catch (error) {
-//       // Handle error
-//       setApiError(true);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleSubmit = async () => {
-//     try {
-//       console.log("handleSubmit", countryName);
-//       const normalizedCountryName = normalizeCountryName(countryName);
-//       console.log("normalizedCountryName", normalizedCountryName);
-//       const countryNameVariants = generateCountryNameVariants(
-//         normalizedCountryName
-//       );
-
-//       let foundExactMatch = false;
-
-//       for (const variant of countryNameVariants) {
-//         const response = await fetchCountryData(variant);
-//         console.log("variant", response);
-//         if (response) {
-//           setSearchHistory((prevSearchHistory) => [
-//             ...prevSearchHistory,
-//             response,
-//           ]);
-//           if (variant === normalizedCountryName) {
-//             foundExactMatch = true;
-//           }
-//           break;
-//         }
-//       }
-
-//       if (
-//         !foundExactMatch &&
-//         !countryNameVariants.includes(normalizedCountryName)
-//       ) {
-//         // console.error('Erro: País não encontrado.');
-//       }
-//     } catch (error) {
-//       // console.error('Erro ao buscar informações do país:', error);
-//       setApiError(true);
-//     } finally {
-//       setCountryName("");
-//     }
-//   };
-
-//   // useEffect(() => {
-//   //   const handleOnline = () => {
-//   //     setOffline(false);
-//   //   };
-
-//   //   const handleOffline = () => {
-//   //     setOffline(true);
-//   //   };
-
-//   //   // Add event listeners for online/offline status
-//   //   return () => {
-//   //     // Remove event listeners
-//   //   };
-//   // }, []);
-
-//   useEffect(() => {
-//     const saveData = async () => {
-//       try {
-//         await AsyncStorage.setItem(
-//           "searchHistory",
-//           JSON.stringify(searchHistory)
-//         );
-//       } catch (error) {
-//         console.error("Erro ao salvar dados:", error);
-//       }
-//     };
-
-//     saveData();
-//   }, [searchHistory]);
-
-//   useEffect(() => {
-//     const loadData = async () => {
-//       try {
-//         const savedData = await AsyncStorage.getItem("searchHistory");
-//         if (savedData !== null) {
-//           setSearchHistory(JSON.parse(savedData));
-//         }
-//       } catch (error) {
-//         console.error("Erro ao carregar dados:", error);
-//       }
-//     };
-
-//     loadData();
-//   }, []);
-
-//   // const processFileData = (data: any) => {
-//   //   if (data && data.maps && data.maps.googleMaps) {
-//   //     openGoogleMapsLink(data.maps.googleMaps);
-//   //   } else {
-//   //     console.error("Link do Google Maps não encontrado no arquivo.");
-//   //   }
-//   // };
-
-//   return (
-//     <View style={styles.container}>
-//       <Header title="Consulta de Informações de Países" />
-//       <View style={styles.main}>
-//         <View>
-//           <Input
-//             value={countryName}
-//             onChange={handleCountryNameChange}
-//             placeholder="Digite o nome do país"
-//           />
-//           <Button text={"Buscar"} onPress={handleSubmit} />
-//         </View>
-//         <View style={styles.viewModeContainer}>
-//           <Title title="Histórico de Consultas" />
-//         </View>
-//         <View style={styles.content}>
-//           <CountryCardContainer
-//             countries={searchHistory}
-//             onExecuteAgain={handleExecuteAgain}
-//             openGoogleMapsLink={openGoogleMapsLink}
-//           />
-//         </View>
-//       </View>
-//     </View>
-//   );
-// }
-
 import { getCountryData } from "@/Services/api";
 import { CountryData } from "@/Types/types";
 import { theme } from "@/theme";
@@ -219,6 +13,7 @@ import {
   Image,
   Linking,
 } from "react-native";
+import unorm from "unorm";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { formatarPopulacao, removeAspas } from "@/Services/functions";
 
@@ -283,12 +78,78 @@ const App: React.FC = () => {
   const [countryName, setCountryName] = useState<string>("");
   const [searchResults, setSearchResults] = useState<CountryData[]>([]);
 
+  const generateCountryNameVariations = (countryName: string): string[] => {
+    const variations: string[] = [];
+    variations.push(countryName);
+
+    const normalized = unorm.nfd(countryName);
+    const withoutAccents = normalized.replace(/[\u0300-\u036f]/g, "");
+    if (withoutAccents !== countryName) {
+      variations.push(withoutAccents);
+    }
+
+    const asciiVariants: Record<string, string> = {
+      á: "a",
+      à: "a",
+      â: "a",
+      ã: "a",
+      ä: "a",
+      å: "a",
+      é: "e",
+      è: "e",
+      ê: "e",
+      ë: "e",
+      í: "i",
+      ì: "i",
+      î: "i",
+      ï: "i",
+      ó: "o",
+      ò: "o",
+      ô: "o",
+      õ: "o",
+      ö: "o",
+      ø: "o",
+      ú: "u",
+      ù: "u",
+      û: "u",
+      ü: "u",
+      ñ: "n",
+      ç: "c",
+    };
+
+    const withAsciiEquivalents = normalized.replace(
+      /[\u0300-\u036f]/g,
+      (match) => asciiVariants[match] || match
+    );
+    if (withAsciiEquivalents !== normalized) {
+      variations.push(withAsciiEquivalents);
+    }
+
+    return variations;
+  };
+
   const searchCountry = async () => {
     try {
-      const data = await getCountryData(countryName);
-      console.log(data);
-      setSearchResults((prevResults) => [...prevResults, ...data]);
-      saveDataToStorage([...searchResults, ...data]);
+      const variations = generateCountryNameVariations(countryName);
+      let foundValidResult = false;
+
+      for (const variation of variations) {
+        const searchData = await getCountryData(variation);
+        if (searchData) {
+          const firstValidResult = Array.isArray(searchData)
+            ? searchData[0]
+            : searchData;
+          console.log("País encontrado:", firstValidResult);
+          setSearchResults((prevResults) => [...prevResults, firstValidResult]);
+          saveDataToStorage([...searchResults, firstValidResult]);
+          foundValidResult = true;
+          break;
+        }
+      }
+
+      if (!foundValidResult) {
+        console.log("Nenhum país válido encontrado.");
+      }
     } catch (error) {
       console.error("Erro ao buscar país:", error);
     }
