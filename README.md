@@ -81,4 +81,6 @@ REACT_APP_BASE_URL=https://restcountries.com/v3.1/
  npx expo start
  
  ``` 
+
+assim que rodar o comadno vai aparecer um QR code, baixo no seu celular o aplicativo Expo Go, e pelo aplicativo leia o QR COde.
 Pronto projeto rodando!
