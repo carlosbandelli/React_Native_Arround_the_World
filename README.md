@@ -51,14 +51,9 @@ Para executar a aplicação:
 Precisa fazer o git clone do projeto<br/>
 Fique á vontade para clonar de quaisquer uma das seguintes chaves na sua maquina<br/>
 
-#### Chave SSH:
+#### Chave HTTPS
 ```
- git clone git@github.com:carlosbandelli/Arround_world.git
-```
-
-#### Chave HTTPS:
-```
-git clone https://github.com/carlosbandelli/Arround_world.git
+git clone https://github.com/carlosbandelli/React_Native_Arround_the_World.git
 
 ```
 ### 📺 FRONT-END:
